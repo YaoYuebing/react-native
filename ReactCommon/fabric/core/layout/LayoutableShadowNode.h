@@ -10,9 +10,11 @@
 #include <array>
 #include <cmath>
 #include <vector>
+#include <memory>
 
 #include <fabric/core/LayoutMetrics.h>
 #include <fabric/core/Sealable.h>
+#include <fabric/debug/DebugStringConvertible.h>
 
 namespace facebook {
 namespace react {
@@ -22,7 +24,7 @@ struct LayoutContext;
 
 class LayoutableShadowNode;
 using SharedLayoutableShadowNode = std::shared_ptr<const LayoutableShadowNode>;
-using SharedLayoutableShadowNodeList = std::vector<const SharedLayoutableShadowNode>;
+using SharedLayoutableShadowNodeList = std::vector<SharedLayoutableShadowNode>;
 using LayoutableShadowNodeIterator = std::iterator<std::input_iterator_tag, const SharedLayoutableShadowNode>;
 
 /*
@@ -101,6 +103,10 @@ protected:
    * Returns true if the metrics are different from previous ones.
    */
   virtual bool setLayoutMetrics(LayoutMetrics layoutMetrics);
+
+#pragma mark - DebugStringConvertible
+
+  SharedDebugStringConvertibleList getDebugProps() const;
 
 private:
   LayoutMetrics layoutMetrics_ {};

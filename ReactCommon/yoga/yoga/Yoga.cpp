@@ -1,8 +1,9 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
+/*
+ *  Copyright (c) 2014-present, Facebook, Inc.
  *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
+ *  This source code is licensed under the MIT license found in the LICENSE
+ *  file in the root directory of this source tree.
+ *
  */
 
 #include "Yoga.h"
@@ -274,10 +275,6 @@ static YGNodeRef YGNodeDeepClone(YGNodeRef oldNode) {
     node->setConfig(YGConfigClone(*(oldNode->getConfig())));
   }
 
-  if (oldNode->getNextChild() != nullptr) {
-    node->setNextChild(YGNodeDeepClone(oldNode->getNextChild()));
-  }
-
   return node;
 }
 
@@ -532,6 +529,10 @@ uint32_t YGNodeGetChildCount(const YGNodeRef node) {
 }
 
 YGNodeRef YGNodeGetOwner(const YGNodeRef node) {
+  return node->getOwner();
+}
+
+YGNodeRef YGNodeGetParent(const YGNodeRef node) {
   return node->getOwner();
 }
 
@@ -1783,16 +1784,17 @@ static void YGNodeComputeFlexBasisForChildren(
   // child to exactly match the remaining space
   if (measureModeMainDim == YGMeasureModeExactly) {
     for (auto child : children) {
-      if (singleFlexChild != nullptr) {
-        if (child->isNodeFlexible()) {
-          // There is already a flexible child, abort
+      if (child->isNodeFlexible()) {
+        if (singleFlexChild != nullptr ||
+            YGFloatsEqual(child->resolveFlexGrow(), 0.0f) ||
+            YGFloatsEqual(child->resolveFlexShrink(), 0.0f)) {
+          // There is already a flexible child, or this flexible child doesn't
+          // have flexGrow and flexShrink, abort
           singleFlexChild = nullptr;
           break;
+        } else {
+          singleFlexChild = child;
         }
-      } else if (
-          child->resolveFlexGrow() > 0.0f &&
-          child->resolveFlexShrink() > 0.0f) {
-        singleFlexChild = child;
       }
     }
   }
